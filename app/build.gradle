@@ -26,4 +26,15 @@ dependencies {
     })
     compile 'com.android.support:appcompat-v7:25.3.1'
     testCompile 'junit:junit:4.12'
+
+    // Retrofit
+    compile 'com.squareup.retrofit2:retrofit:2.1.0'
+
+    // GGSON
+    compile 'com.google.code.gson:gson:2.6.2'
+
+    // Retrofit PARSER - ggson
+    compile 'com.squareup.retrofit2:converter-gson:2.1.0'
+    // Interceptor
+    compile 'com.squareup.okhttp3:logging-interceptor:3.3.1'
 }
