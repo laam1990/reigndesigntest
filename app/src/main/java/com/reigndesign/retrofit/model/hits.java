@@ -6,7 +6,7 @@ import com.google.gson.annotations.SerializedName;
  * Created by Luis Adrian on 24/04/2017.
  */
 
-public class hits {
+public class Hits {
 
     @SerializedName("title")
     private String title;
@@ -23,9 +23,9 @@ public class hits {
     @SerializedName("author")
     private String author;
 
-    public hits() {}
+    public Hits() {}
 
-    public hits(String title, String storyTitle, int objectID, String author, String createdAt) {
+    public Hits(String title, String storyTitle, int objectID, String author, String createdAt) {
         this.title = title;
         this.storyTitle = storyTitle;
         this.objectID = objectID;

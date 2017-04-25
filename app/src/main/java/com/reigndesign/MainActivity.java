@@ -6,9 +6,9 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.google.gson.internal.LinkedTreeMap;
 import com.reigndesign.retrofit.apiRoute.apiService;
-import com.reigndesign.retrofit.model.hits;
+import com.reigndesign.retrofit.controllers.routesController;
+import com.reigndesign.retrofit.model.Hits;
 import com.reigndesign.retrofit.responseGeneral.responseGeneral;
 
 import java.util.ArrayList;
@@ -22,9 +22,6 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-import retrofit2.http.GET;
-import retrofit2.http.Headers;
-import retrofit2.http.Query;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -40,61 +37,33 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        buildRetrofit();
 
-        Call<responseGeneral> generalResponse = mService.listNews(android);
-
-        generalResponse.enqueue(new Callback<responseGeneral>() {
+        routesController mListHits = new routesController();
+        mListHits.listHits(android, new routesController.hitsCallback() {
             @Override
-            public void onResponse(Call<responseGeneral> call, Response<responseGeneral> response) {
+            public void onResponse(List<Object> response) {
 
-                if (response.isSuccessful())
-                {
-                    responseGeneral mCallResponse = response.body();
-                    Log.d(TAG, response.body().toString());
                     Toast.makeText(getBaseContext(),"aqui estoy",Toast.LENGTH_LONG).show();
 
-                    List<Object> objectResponse = (List<Object>) mCallResponse.getObject();
-                    List<hits> mHits = new ArrayList<hits>();
+                    List<Object> objectResponse = (List<Object>) response;
+                    List<Hits> mHits = new ArrayList<Hits>();
 
                     for(Object mList: objectResponse)
                     {
                         String mJson = new Gson().toJson(mList);
-                        hits model = new Gson().fromJson(mJson, hits.class);
+                        Hits model = new Gson().fromJson(mJson, Hits.class);
                         String author = model.getAuthor();
                         Log.d("AUTHOR",author);
                     }
 
                 }
-            }
 
             @Override
-            public void onFailure(Call<responseGeneral> call, Throwable t) {
+            public void onFailure(String mensajeError) {
 
             }
         });
+
     }
-
-    public void buildRetrofit()
-    {
-        // Intercept http
-        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-
-        final OkHttpClient client = new OkHttpClient.Builder()
-                .addInterceptor(interceptor)
-                .readTimeout(120, TimeUnit.SECONDS)
-                .connectTimeout(120, TimeUnit.SECONDS)
-                .build();
-
-        mRetrofit = new Retrofit.Builder()
-                .baseUrl(getString(R.string.URL_BASE))
-                .addConverterFactory(GsonConverterFactory.create())
-                .client(client)
-                .build();
-
-        mService = mRetrofit.create(apiService.class);
-    }
-
 
 }
