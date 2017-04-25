@@ -1,14 +1,18 @@
 package com.reigndesign.adapters;
 
 import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.reigndesign.R;
+import com.reigndesign.WebViewActivity;
 import com.reigndesign.model.modelHits;
 
 import java.util.List;
@@ -21,6 +25,9 @@ public class hitsAdapter extends RecyclerView.Adapter<hitsAdapter.MyViewHolder> 
 
     private Context mContext;
     private List<modelHits> mListHits;
+    private Bundle mBundle;
+    private String url;
+    private Intent mIntent;
 
     public hitsAdapter(Context mContext, List<modelHits> mListHits) {
         this.mContext = mContext;
@@ -36,14 +43,10 @@ public class hitsAdapter extends RecyclerView.Adapter<hitsAdapter.MyViewHolder> 
     }
 
     @Override
-    public void onBindViewHolder(hitsAdapter.MyViewHolder holder, int position) {
+    public void onBindViewHolder(hitsAdapter.MyViewHolder holder, final int position) {
 
-        modelHits hits = mListHits.get(position);
+        final modelHits hits = mListHits.get(position);
 
-        if(position % 2 != 0 )
-        {
-            holder.row.setBackgroundColor(mContext.getResources().getColor(R.color.gray) );
-        }
 
         if(hits.getTitle()!= null)
         {
@@ -55,11 +58,37 @@ public class hitsAdapter extends RecyclerView.Adapter<hitsAdapter.MyViewHolder> 
         holder.author.setText(hits.getAuthor());
         holder.time.setText(hits.getCreatedAt());
 
+        holder.row.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if(hits.getUrl()!=null)
+                {
+                    url = hits.getUrl();
+                }
+                else {
+                    url = hits.getStoryUrl();
+                }
+                mBundle = new Bundle();
+                mBundle.putString("url",url);
+                mIntent = new Intent(mContext, WebViewActivity.class);
+                mIntent.putExtras(mBundle);
+                mContext.startActivity(mIntent);
+
+            }
+        });
+
     }
 
     @Override
     public int getItemCount() {
         return mListHits.size();
+    }
+
+    public void removeItem(int position) {
+        mListHits.remove(position);
+        notifyItemRemoved(position);
+        notifyItemRangeChanged(position, mListHits.size());
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
@@ -73,7 +102,7 @@ public class hitsAdapter extends RecyclerView.Adapter<hitsAdapter.MyViewHolder> 
             author = (TextView) view.findViewById(R.id.author);
             time = (TextView) view.findViewById(R.id.time);
             row = (LinearLayout) view.findViewById(R.id.linearRow);
-
+            
         }
     }
 }
