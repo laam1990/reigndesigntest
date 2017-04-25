@@ -1,35 +1,37 @@
-package com.reigndesign.retrofit.model;
-
-import com.google.gson.annotations.SerializedName;
+package com.reigndesign.model;
 
 /**
  * Created by Luis Adrian on 24/04/2017.
  */
 
-public class Hits {
+public class modelHits {
 
-    @SerializedName("title")
     private String title;
 
-    @SerializedName("story_title")
     private String storyTitle;
 
-    @SerializedName("objectID")
     private int objectID;
 
-    @SerializedName("created_at")
     private String createdAt;
 
-    @SerializedName("author")
     private String author;
 
-    @SerializedName("story_url")
-    private String storyUrl;
-
-    @SerializedName("url")
     private String url;
 
-    public Hits() {}
+    private String storyUrl;
+
+    public modelHits() {
+    }
+
+    public modelHits(String title, String storyTitle, int objectID, String createdAt, String author, String url, String storyUrl) {
+        this.title = title;
+        this.storyTitle = storyTitle;
+        this.objectID = objectID;
+        this.createdAt = createdAt;
+        this.author = author;
+        this.url = url;
+        this.storyUrl = storyUrl;
+    }
 
     public String getTitle() {
         return title;
@@ -71,19 +73,19 @@ public class Hits {
         this.author = author;
     }
 
-    public String getStoryUrl() {
-        return storyUrl;
-    }
-
-    public void setStoryUrl(String storyUrl) {
-        this.storyUrl = storyUrl;
-    }
-
     public String getUrl() {
         return url;
     }
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public String getStoryUrl() {
+        return storyUrl;
+    }
+
+    public void setStoryUrl(String storyUrl) {
+        this.storyUrl = storyUrl;
     }
 }
