@@ -44,4 +44,7 @@ dependencies {
     
     // Interceptor
     compile 'com.squareup.okhttp3:logging-interceptor:3.3.1'
+
+    //SwipeLayout
+    compile "com.daimajia.swipelayout:library:1.2.0@aar"
 }
