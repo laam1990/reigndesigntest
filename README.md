@@ -7,8 +7,11 @@ You should only clone the project and run it
 
 # Used libraries
 
-## Retrofit: to consume the API
-## Realm.io: library that replaces SQLite to work offline
-## SwipeLayout: to pull to refresh
-## GSON: to manipulate JSON data
+Retrofit: to consume the API.
+
+Realm.io: library that replaces SQLite to work offline.
+
+SwipeLayout: to pull to refresh.
+
+GSON: to manipulate JSON data.
 
