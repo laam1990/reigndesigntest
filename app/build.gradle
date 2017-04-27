@@ -47,4 +47,6 @@ dependencies {
 
     //SwipeLayout
     compile "com.daimajia.swipelayout:library:1.2.0@aar"
+
+    compile 'io.realm:realm-android:0.82.1'
 }

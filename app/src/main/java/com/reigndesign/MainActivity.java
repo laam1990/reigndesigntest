@@ -23,7 +23,9 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.reigndesign.adapters.hitsAdapter;
+import com.reigndesign.adapters.realmModelAdapter;
 import com.reigndesign.model.modelHits;
+import com.reigndesign.realm.hitsRealm;
 import com.reigndesign.retrofit.apiRoute.apiService;
 import com.reigndesign.retrofit.controllers.routesController;
 import com.reigndesign.retrofit.model.Hits;
@@ -33,6 +35,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import io.realm.Realm;
+import io.realm.RealmResults;
+import io.realm.internal.Context;
+import io.realm.processor.Utils;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
@@ -52,33 +58,42 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private SwipeRefreshLayout swipeRefreshLayout;
     private Paint p = new Paint();
     private View view;
+    private Realm realm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //get realm instance
+        this.realm = hitsRealm.with(this).getRealm();
+
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
-
-        mListHist = new ArrayList<>();
-        mAdapter = new hitsAdapter(this, mListHist);
-
-        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
-        recyclerView.setLayoutManager(mLayoutManager);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.setAdapter(mAdapter);
-
         swipeRefreshLayout.setOnRefreshListener(this);
 
-        swipeRefreshLayout.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        swipeRefreshLayout.setRefreshing(true);
-                                        fetchHits();
-                                    }
-                                }
-        );
+        mListHist = new ArrayList<>();
+
+        //hitsRealm.with(this).refresh();
+        //setRealmAdapter(hitsRealm.with(this).findAll());
+        //mAdapter = new hitsAdapter(this);
+        setupRecycler();
+
+        if(utils.isConnected(this)){
+                swipeRefreshLayout.post(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                swipeRefreshLayout.setRefreshing(true);
+                                                fetchHits();
+                                            }
+                                        }
+                );
+        }else {
+            hitsRealm.with(this).refresh();
+            setRealmAdapter(hitsRealm.with(this).findAll());
+        }
+
+
 
         initSwipe();
 
@@ -91,8 +106,25 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         fetchHits();
     }
 
+    private void setupRecycler() {
+
+        recyclerView.setHasFixedSize(true);
+
+        // use a linear layout manager since the cards are vertically scrollable
+        final LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+
+        // create an empty adapter and add it to the recycler view
+        mAdapter = new hitsAdapter(this);
+        recyclerView.setAdapter(mAdapter);
+
+    }
+
     public void fetchHits()
     {
+
         // showing refresh animation before making http call
         swipeRefreshLayout.setRefreshing(true);
 
@@ -100,34 +132,78 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         mListHits.listHits(android, new routesController.hitsCallback() {
             @Override
             public void onResponse(List<Object> response) {
+                    String title,author, createdAt, url;
+                    int id;
+                    List<Object> objectResponse = (List<Object>) response;
+                    List<Hits> mHits = new ArrayList<Hits>();
 
-                List<Object> objectResponse = (List<Object>) response;
-                List<Hits> mHits = new ArrayList<Hits>();
+                    if(objectResponse.size()>0)
+                    {
+                        realm.commitTransaction();
+                        realm.beginTransaction();
+                    }
 
-                for(Object mList: objectResponse)
-                {
-                    String mJson = new Gson().toJson(mList);
-                    Hits model = new Gson().fromJson(mJson, Hits.class);
-                    int id = model.getObjectID();
-                    String author = model.getAuthor();
-                    String createdAt = model.getCreatedAt();
-                    String title = model.getTitle();
-                    String storyTitle = model.getStoryTitle();
-                    String url = model.getUrl();
-                    String storyUrl = model.getStoryUrl();
-                    modelHits modelHits = new modelHits(title,storyTitle,id,createdAt,author,url,storyUrl);
-                    mListHist.add(modelHits);
+                    for(Object mList: objectResponse)
+                    {
+                        String mJson = new Gson().toJson(mList);
+                        Hits model = new Gson().fromJson(mJson, Hits.class);
+                        id = model.getObjectID();
+                        author = model.getAuthor();
+                        createdAt = model.getCreatedAt();
+                        if(model.getTitle()==null)
+                        {
+                            title = model.getStoryTitle();
+                        }
+                        else
+                        {
+                            title = model.getTitle();
+                        }
 
-                    Log.d("HITS",   String.valueOf(id) + " " +
-                                    author + " " +
-                                    createdAt + " " +
-                                    "TITLE: " + title + " " +
-                                    "URL: " + url + " " +
-                                    "STORY_TITLE: " + storyTitle + " " +
-                                    "STORY_URL: " + storyUrl);
-                }
+                        if(model.getUrl()==null)
+                        {
+                            url = model.getStoryUrl();
+                        }
+                        else {
+                            url = model.getUrl();
+                        }
 
-                mAdapter.notifyDataSetChanged();
+
+
+                        if (!hitsRealm.with(MainActivity.this).isEmpty()) {
+                            realm.commitTransaction();
+                            setData(id,author,createdAt,title,url);
+                        }
+                        else{
+                            modelHits mh;
+                            mh = hitsRealm.with(MainActivity.this).findById(id);
+                            if (mh == null) {
+                                realm.commitTransaction();
+                                setData(id,author,createdAt,title,url);
+                            }
+                        }
+
+                        //setData(hits);
+
+
+                        //mListHist.add(modelHits);
+
+                        Log.d("HITS",   String.valueOf(id) + " " +
+                                        author + " " +
+                                        createdAt + " " +
+                                        "TITLE: " + title + " " +
+                                        "URL: " + url + " " +
+                                        "STORY_TITLE: " + model.getStoryTitle() + " " +
+                                        "STORY_URL: " + model.getStoryUrl());
+                    }
+
+                    if(objectResponse.size()>0)
+                    {
+                        realm.commitTransaction();
+                        realm.beginTransaction();
+                    }
+
+                hitsRealm.with(MainActivity.this).refresh();
+                setRealmAdapter(hitsRealm.with(MainActivity.this).findAll());
 
                 // stopping swipe refresh
                 swipeRefreshLayout.setRefreshing(false);
@@ -141,6 +217,24 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
+    }
+
+    public void setData(int id, String author, String createdAt, String title, String url)
+    {
+        modelHits hits = new modelHits();
+        hits.setObjectID(id);
+        hits.setAuthor(author);
+        hits.setCreatedAt(createdAt);
+        hits.setTitle(title);
+        hits.setUrl(url);
+        hitsRealm.with(MainActivity.this).add(hits);
+    }
+
+    public void setRealmAdapter(RealmResults<modelHits> hits) {
+
+        realmModelAdapter realmAdapter = new realmModelAdapter(this.getApplicationContext(), hits, true);
+        mAdapter.setRealmAdapter(realmAdapter);
+        mAdapter.notifyDataSetChanged();
     }
 
     private void initSwipe(){

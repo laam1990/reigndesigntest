@@ -64,7 +64,8 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@android:color/black" />
+        android:background="#999999"
+        android:alpha="0.3"/>
 
     </LinearLayout>
 

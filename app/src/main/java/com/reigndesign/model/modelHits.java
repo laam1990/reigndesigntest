@@ -1,15 +1,19 @@
 package com.reigndesign.model;
 
+import io.realm.Realm;
+import io.realm.RealmObject;
+
+import io.realm.annotations.PrimaryKey;
+
 /**
  * Created by Luis Adrian on 24/04/2017.
  */
 
-public class modelHits {
+public class modelHits extends RealmObject {
 
     private String title;
 
-    private String storyTitle;
-
+    @PrimaryKey
     private int objectID;
 
     private String createdAt;
@@ -18,19 +22,15 @@ public class modelHits {
 
     private String url;
 
-    private String storyUrl;
-
     public modelHits() {
     }
 
-    public modelHits(String title, String storyTitle, int objectID, String createdAt, String author, String url, String storyUrl) {
+    public modelHits(String title, int objectID, String createdAt, String author, String url) {
         this.title = title;
-        this.storyTitle = storyTitle;
         this.objectID = objectID;
         this.createdAt = createdAt;
         this.author = author;
         this.url = url;
-        this.storyUrl = storyUrl;
     }
 
     public String getTitle() {
@@ -39,14 +39,6 @@ public class modelHits {
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public String getStoryTitle() {
-        return storyTitle;
-    }
-
-    public void setStoryTitle(String storyTitle) {
-        this.storyTitle = storyTitle;
     }
 
     public int getObjectID() {
@@ -81,11 +73,4 @@ public class modelHits {
         this.url = url;
     }
 
-    public String getStoryUrl() {
-        return storyUrl;
-    }
-
-    public void setStoryUrl(String storyUrl) {
-        this.storyUrl = storyUrl;
-    }
 }
