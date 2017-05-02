@@ -34,11 +34,10 @@ import io.realm.RealmResults;
 
 public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
 
-    public static final String TAG = "HITS_OBJECT";
+    private static final String TAG = "HITS_OBJECT";
     private static String ANDROID = "android";
 
     private RecyclerView recyclerView;
-    private List<Hits> mListHist;
     private HitsAdapter mAdapter;
     private SwipeRefreshLayout swipeRefreshLayout;
     private Paint p = new Paint();
@@ -57,11 +56,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
         swipeRefreshLayout.setOnRefreshListener(this);
 
-        mListHist = new ArrayList<>();
-
-        //HitsRealmController.with(this).refresh();
-        //setRealmAdapter(HitsRealmController.with(this).findAll());
-        //mAdapter = new HitsAdapter(this);
         setupRecycler();
 
         if(Utils.isConnected(this)){
@@ -78,16 +72,12 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             setRealmAdapter(HitsRealmController.with(this).findAll());
         }
 
-
-
         initSwipe();
-
 
     }
 
     @Override
     public void onRefresh() {
-        mListHist.clear();
         fetchHits();
     }
 
@@ -107,7 +97,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     }
 
-    public void fetchHits()
+    private void fetchHits()
     {
 
         // showing refresh animation before making http call
@@ -122,7 +112,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                     String createdAt;
                     String url;
                     int id;
-
 
                     for(Object mList: response)
                     {
@@ -183,7 +172,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         });
     }
 
-    public void setData(int id, String author, String createdAt, String title, String url)
+    private void setData(int id, String author, String createdAt, String title, String url)
     {
         Hits hits = new Hits();
         hits.setObjectID(id);
@@ -194,7 +183,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         HitsRealmController.with(MainActivity.this).add(hits);
     }
 
-    public void setRealmAdapter(RealmResults<Hits> hits) {
+    private void setRealmAdapter(RealmResults<Hits> hits) {
 
         RealmModelAdapter realmAdapter = new RealmModelAdapter(this.getApplicationContext(), hits, true);
         mAdapter.setRealmAdapter(realmAdapter);
@@ -253,7 +242,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         }
     }
 
-    public static Bitmap drawableToBitmap (Drawable drawable) {
+    private static Bitmap drawableToBitmap (Drawable drawable) {
 
         if (drawable instanceof BitmapDrawable) {
             return ((BitmapDrawable)drawable).getBitmap();

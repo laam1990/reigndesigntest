@@ -92,7 +92,7 @@ public class HitsAdapter extends RealmRecyclerViewAdapter<Hits> {
         notifyItemRangeChanged(position, getRealmAdapter().getCount());
     }
 
-    public String dateAgo(String createdAt)
+    private String dateAgo(String createdAt)
     {
         long time = 0;
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
