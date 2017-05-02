@@ -13,11 +13,11 @@ import retrofit2.converter.gson.GsonConverterFactory;
  * Created by Luis Adrian on 24/04/2017.
  */
 
-public class baseController {
-    public Retrofit mRetrofit;
+public class BaseController {
+    public Retrofit retrofit;
     public static final String URL_BASE = "https://hn.algolia.com/api/v1/";
 
-    public baseController(){
+    public BaseController(){
     // Intercept http
     HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
     interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
@@ -28,7 +28,7 @@ public class baseController {
             .connectTimeout(120, TimeUnit.SECONDS)
             .build();
 
-    mRetrofit = new Retrofit.Builder()
+    retrofit = new Retrofit.Builder()
             .baseUrl(URL_BASE)
             .addConverterFactory(GsonConverterFactory.create())
             .client(client)

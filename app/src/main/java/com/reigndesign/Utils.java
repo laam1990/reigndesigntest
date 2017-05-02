@@ -8,7 +8,7 @@ import android.net.NetworkInfo;
  * Created by Luis Adrian on 26/04/2017.
  */
 
-public class utils {
+public class Utils {
 
     public static boolean isConnected(Context context) {
 

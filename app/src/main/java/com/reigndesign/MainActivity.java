@@ -1,9 +1,7 @@
 package com.reigndesign;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
@@ -12,7 +10,6 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -22,39 +19,27 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.reigndesign.adapters.hitsAdapter;
-import com.reigndesign.adapters.realmModelAdapter;
-import com.reigndesign.model.modelHits;
-import com.reigndesign.realm.hitsRealm;
-import com.reigndesign.retrofit.apiRoute.apiService;
-import com.reigndesign.retrofit.controllers.routesController;
-import com.reigndesign.retrofit.model.Hits;
-import com.reigndesign.retrofit.responseGeneral.responseGeneral;
+import com.reigndesign.adapters.HitsAdapter;
+import com.reigndesign.adapters.RealmModelAdapter;
+import com.reigndesign.model.Hits;
+import com.reigndesign.realm.HitsRealmController;
+import com.reigndesign.retrofit.controllers.RoutesController;
+import com.reigndesign.retrofit.model.HitsService;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
-import io.realm.internal.Context;
-import io.realm.processor.Utils;
-import okhttp3.OkHttpClient;
-import okhttp3.logging.HttpLoggingInterceptor;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
 
-    public static final String TAG = "JSON_BODY";
-    private static String android = "android";
+    public static final String TAG = "HITS_OBJECT";
+    private static String ANDROID = "android";
 
     private RecyclerView recyclerView;
-    private List<modelHits> mListHist;
-    private hitsAdapter mAdapter;
+    private List<Hits> mListHist;
+    private HitsAdapter mAdapter;
     private SwipeRefreshLayout swipeRefreshLayout;
     private Paint p = new Paint();
     private View view;
@@ -66,7 +51,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         setContentView(R.layout.activity_main);
 
         //get realm instance
-        this.realm = hitsRealm.with(this).getRealm();
+        this.realm = HitsRealmController.with(this).getRealm();
 
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
@@ -74,12 +59,12 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
         mListHist = new ArrayList<>();
 
-        //hitsRealm.with(this).refresh();
-        //setRealmAdapter(hitsRealm.with(this).findAll());
-        //mAdapter = new hitsAdapter(this);
+        //HitsRealmController.with(this).refresh();
+        //setRealmAdapter(HitsRealmController.with(this).findAll());
+        //mAdapter = new HitsAdapter(this);
         setupRecycler();
 
-        if(utils.isConnected(this)){
+        if(Utils.isConnected(this)){
                 swipeRefreshLayout.post(new Runnable() {
                                             @Override
                                             public void run() {
@@ -89,8 +74,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                                         }
                 );
         }else {
-            hitsRealm.with(this).refresh();
-            setRealmAdapter(hitsRealm.with(this).findAll());
+            HitsRealmController.with(this).refresh();
+            setRealmAdapter(HitsRealmController.with(this).findAll());
         }
 
 
@@ -117,7 +102,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
         // create an empty adapter and add it to the recycler view
-        mAdapter = new hitsAdapter(this);
+        mAdapter = new HitsAdapter(this);
         recyclerView.setAdapter(mAdapter);
 
     }
@@ -128,82 +113,61 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         // showing refresh animation before making http call
         swipeRefreshLayout.setRefreshing(true);
 
-        routesController mListHits = new routesController();
-        mListHits.listHits(android, new routesController.hitsCallback() {
+        RoutesController mListHits = new RoutesController();
+        mListHits.listHits(ANDROID, new RoutesController.hitsCallback() {
             @Override
             public void onResponse(List<Object> response) {
-                    String title,author, createdAt, url;
+                    String  title;
+                    String author;
+                    String createdAt;
+                    String url;
                     int id;
-                    List<Object> objectResponse = (List<Object>) response;
-                    List<Hits> mHits = new ArrayList<Hits>();
 
-                    if(objectResponse.size()>0)
-                    {
-                        realm.commitTransaction();
-                        realm.beginTransaction();
-                    }
 
-                    for(Object mList: objectResponse)
+                    for(Object mList: response)
                     {
                         String mJson = new Gson().toJson(mList);
-                        Hits model = new Gson().fromJson(mJson, Hits.class);
+                        HitsService model = new Gson().fromJson(mJson, HitsService.class);
+                        //set variables
                         id = model.getObjectID();
                         author = model.getAuthor();
                         createdAt = model.getCreatedAt();
-                        if(model.getTitle()==null)
-                        {
+                        if(model.getTitle()==null) {
                             title = model.getStoryTitle();
                         }
-                        else
-                        {
+                        else {
                             title = model.getTitle();
                         }
 
-                        if(model.getUrl()==null)
-                        {
+                        if(model.getUrl()==null) {
                             url = model.getStoryUrl();
                         }
                         else {
                             url = model.getUrl();
                         }
-
-
-
-                        if (!hitsRealm.with(MainActivity.this).isEmpty()) {
+                        //Check that the database is empty or not.
+                        if (!HitsRealmController.with(MainActivity.this).isEmpty()) {
                             realm.commitTransaction();
                             setData(id,author,createdAt,title,url);
                         }
                         else{
-                            modelHits mh;
-                            mh = hitsRealm.with(MainActivity.this).findById(id);
+                            Hits mh;
+                            mh = HitsRealmController.with(MainActivity.this).findById(id);
                             if (mh == null) {
                                 realm.commitTransaction();
                                 setData(id,author,createdAt,title,url);
                             }
                         }
-
-                        //setData(hits);
-
-
-                        //mListHist.add(modelHits);
-
-                        Log.d("HITS",   String.valueOf(id) + " " +
-                                        author + " " +
-                                        createdAt + " " +
+                        //Log is to view Objects
+                        Log.d(TAG,      "ID: " + String.valueOf(id) + " " +
+                                        "AUTHOR: " + author + " " +
+                                        "CREATED_AT: " + createdAt + " " +
                                         "TITLE: " + title + " " +
-                                        "URL: " + url + " " +
-                                        "STORY_TITLE: " + model.getStoryTitle() + " " +
-                                        "STORY_URL: " + model.getStoryUrl());
+                                        "URL: " + url);
                     }
 
-                    if(objectResponse.size()>0)
-                    {
-                        realm.commitTransaction();
-                        realm.beginTransaction();
-                    }
-
-                hitsRealm.with(MainActivity.this).refresh();
-                setRealmAdapter(hitsRealm.with(MainActivity.this).findAll());
+                HitsRealmController.with(MainActivity.this).refresh();
+                setRealmAdapter(HitsRealmController.with(MainActivity.this).findAll());
 
                 // stopping swipe refresh
                 swipeRefreshLayout.setRefreshing(false);
@@ -221,18 +185,18 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     public void setData(int id, String author, String createdAt, String title, String url)
     {
-        modelHits hits = new modelHits();
+        Hits hits = new Hits();
         hits.setObjectID(id);
         hits.setAuthor(author);
         hits.setCreatedAt(createdAt);
         hits.setTitle(title);
         hits.setUrl(url);
-        hitsRealm.with(MainActivity.this).add(hits);
+        HitsRealmController.with(MainActivity.this).add(hits);
     }
 
-    public void setRealmAdapter(RealmResults<modelHits> hits) {
+    public void setRealmAdapter(RealmResults<Hits> hits) {
 
-        realmModelAdapter realmAdapter = new realmModelAdapter(this.getApplicationContext(), hits, true);
+        RealmModelAdapter realmAdapter = new RealmModelAdapter(this.getApplicationContext(), hits, true);
         mAdapter.setRealmAdapter(realmAdapter);
         mAdapter.notifyDataSetChanged();
     }
@@ -282,6 +246,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
     }
+
     private void removeView(){
         if(view.getParent()!=null) {
             ((ViewGroup) view.getParent()).removeView(view);

@@ -1,35 +1,37 @@
-package com.reigndesign.retrofit.model;
+package com.reigndesign.model;
 
-import com.google.gson.annotations.SerializedName;
+import io.realm.Realm;
+import io.realm.RealmObject;
+
+import io.realm.annotations.PrimaryKey;
 
 /**
  * Created by Luis Adrian on 24/04/2017.
  */
 
-public class Hits {
+public class Hits extends RealmObject {
 
-    @SerializedName("title")
     private String title;
 
-    @SerializedName("story_title")
-    private String storyTitle;
-
-    @SerializedName("objectID")
+    @PrimaryKey
     private int objectID;
 
-    @SerializedName("created_at")
     private String createdAt;
 
-    @SerializedName("author")
     private String author;
 
-    @SerializedName("story_url")
-    private String storyUrl;
-
-    @SerializedName("url")
     private String url;
 
-    public Hits() {}
+    public Hits() {
+    }
+
+    public Hits(String title, int objectID, String createdAt, String author, String url) {
+        this.title = title;
+        this.objectID = objectID;
+        this.createdAt = createdAt;
+        this.author = author;
+        this.url = url;
+    }
 
     public String getTitle() {
         return title;
@@ -37,14 +39,6 @@ public class Hits {
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public String getStoryTitle() {
-        return storyTitle;
-    }
-
-    public void setStoryTitle(String storyTitle) {
-        this.storyTitle = storyTitle;
     }
 
     public int getObjectID() {
@@ -71,14 +65,6 @@ public class Hits {
         this.author = author;
     }
 
-    public String getStoryUrl() {
-        return storyUrl;
-    }
-
-    public void setStoryUrl(String storyUrl) {
-        this.storyUrl = storyUrl;
-    }
-
     public String getUrl() {
         return url;
     }
@@ -86,4 +72,5 @@ public class Hits {
     public void setUrl(String url) {
         this.url = url;
     }
+
 }

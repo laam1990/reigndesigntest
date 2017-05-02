@@ -2,10 +2,9 @@ package com.reigndesign.retrofit.controllers;
 
 import android.util.Log;
 
-import com.google.gson.JsonObject;
-import com.reigndesign.retrofit.apiRoute.apiService;
-import com.reigndesign.retrofit.baseController;
-import com.reigndesign.retrofit.responseGeneral.responseGeneral;
+import com.reigndesign.retrofit.apiRoute.ApiService;
+import com.reigndesign.retrofit.BaseController;
+import com.reigndesign.retrofit.responseGeneral.ResponseGeneral;
 
 import java.util.List;
 
@@ -17,27 +16,26 @@ import retrofit2.Response;
  * Created by Luis Adrian on 24/04/2017.
  */
 
-public class routesController extends baseController {
+public class RoutesController extends BaseController {
 
-    private apiService mService;
-    private Call<responseGeneral> generalResponse;
+    private ApiService service;
+    private Call<ResponseGeneral> generalResponse;
 
-
-    public routesController(){
-        mService = mRetrofit.create(apiService.class);
+    public RoutesController(){
+        service = retrofit.create(ApiService.class);
     }
 
     public void listHits(String query, final hitsCallback callback)
     {
-        generalResponse = mService.listNews(query);
+        generalResponse = service.listNews(query);
         call(callback);
     }
 
     public void call(final hitsCallback callback )
     {
-        generalResponse.enqueue(new Callback<responseGeneral>() {
+        generalResponse.enqueue(new Callback<ResponseGeneral>() {
             @Override
-            public void onResponse(Call<responseGeneral> call, Response<responseGeneral> response) {
+            public void onResponse(Call<ResponseGeneral> call, Response<ResponseGeneral> response) {
                 // http response status code + headers
                 Log.d("Response url: ", call.request().url().toString());
 
@@ -62,7 +60,7 @@ public class routesController extends baseController {
             }
 
             @Override
-            public void onFailure(Call<responseGeneral> call, Throwable t) {
+            public void onFailure(Call<ResponseGeneral> call, Throwable t) {
                 Log.e("Url Error: ", call.request().url().toString());
                 Log.e("Url Mensaje: ", t.getMessage());
 
@@ -73,6 +71,6 @@ public class routesController extends baseController {
 
     public interface hitsCallback {
         void onResponse(List<Object> response);
-        void onFailure(String mensajeError);
+        void onFailure(String errormsg);
     }
 }

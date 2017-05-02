@@ -12,9 +12,9 @@ import io.realm.RealmResults;
  * Created by Luis Adrian on 26/04/2017.
  */
 
-public class realmModelAdapter<T extends RealmObject> extends RealmBaseAdapter<T> {
+public class RealmModelAdapter<T extends RealmObject> extends RealmBaseAdapter<T> {
 
-    public realmModelAdapter(Context context, RealmResults<T> realmResults, boolean automaticUpdate) {
+    public RealmModelAdapter(Context context, RealmResults<T> realmResults, boolean automaticUpdate) {
 
         super(context, realmResults, automaticUpdate);
     }

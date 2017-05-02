@@ -10,17 +10,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.reigndesign.R;
 import com.reigndesign.WebViewActivity;
-import com.reigndesign.model.modelHits;
-import com.reigndesign.realm.hitsRealm;
+import com.reigndesign.model.Hits;
+import com.reigndesign.realm.HitsRealmController;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
 import java.util.TimeZone;
 
 import io.realm.Realm;
@@ -29,20 +26,18 @@ import io.realm.Realm;
  * Created by Luis Adrian on 24/04/2017.
  */
 
-public class hitsAdapter extends realmRecyclerViewAdapter<modelHits> {
+public class HitsAdapter extends RealmRecyclerViewAdapter<Hits> {
 
-    private Context mContext;
-    private List<modelHits> mListHits;
-    private Bundle mBundle;
+    private Context context;
+    private Bundle bundle;
     private String url;
     private Intent mIntent;
-    private modelHits hits;
+    private Hits hits;
+    Realm realm;
 
-    private Realm realm;
-    private Bundle bundle;
 
-    public hitsAdapter(Context mContext) {
-        this.mContext = mContext;
+    public HitsAdapter(Context context) {
+        this.context = context;
 
     }
 
@@ -58,16 +53,14 @@ public class hitsAdapter extends realmRecyclerViewAdapter<modelHits> {
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, final int position) {
 
-        realm = hitsRealm.getInstance().getRealm();
+        realm = HitsRealmController.getInstance().getRealm();
 
         hits = getItem(position);
         final MyViewHolder holder = (MyViewHolder) viewHolder;
-        //final modelHits hits = mListHits.get(position);
 
         holder.title.setText(hits.getTitle());
         holder.author.setText(hits.getAuthor());
-
-        String date = DateAgo(hits.getCreatedAt());
+        String date = dateAgo(hits.getCreatedAt());
         holder.time.setText(date);
 
         holder.row.setOnClickListener(new View.OnClickListener() {
@@ -75,11 +68,11 @@ public class hitsAdapter extends realmRecyclerViewAdapter<modelHits> {
             public void onClick(View view) {
 
                 url = hits.getUrl();
-                mBundle = new Bundle();
-                mBundle.putString("url",url);
-                mIntent = new Intent(mContext, WebViewActivity.class);
-                mIntent.putExtras(mBundle);
-                mContext.startActivity(mIntent);
+                bundle = new Bundle();
+                bundle.putString("url",url);
+                mIntent = new Intent(context, WebViewActivity.class);
+                mIntent.putExtras(bundle);
+                context.startActivity(mIntent);
 
             }
         });
@@ -99,7 +92,7 @@ public class hitsAdapter extends realmRecyclerViewAdapter<modelHits> {
         notifyItemRangeChanged(position, getRealmAdapter().getCount());
     }
 
-    public String DateAgo(String createdAt)
+    public String dateAgo(String createdAt)
     {
         long time = 0;
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
@@ -120,15 +113,17 @@ public class hitsAdapter extends realmRecyclerViewAdapter<modelHits> {
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
 
-        TextView title, author, time;
+        TextView title;
+        TextView author;
+        TextView time;
         LinearLayout row;
 
         public MyViewHolder(View view) {
             super(view);
-            title = (TextView) view.findViewById(R.id.title);
-            author = (TextView) view.findViewById(R.id.author);
-            time = (TextView) view.findViewById(R.id.time);
-            row = (LinearLayout) view.findViewById(R.id.linearRow);
+            title = (TextView) view.findViewById(R.id.txt_title);
+            author = (TextView) view.findViewById(R.id.txt_author);
+            time = (TextView) view.findViewById(R.id.txt_time);
+            row = (LinearLayout) view.findViewById(R.id.ly_row);
 
         }
     }

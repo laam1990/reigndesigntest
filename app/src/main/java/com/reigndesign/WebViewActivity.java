@@ -9,8 +9,9 @@ import android.webkit.WebView;
 
 public class WebViewActivity extends ActionBarActivity {
 
-    private Bundle mBundle;
+    private Bundle bundle;
     private String url;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -21,7 +22,7 @@ public class WebViewActivity extends ActionBarActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowHomeEnabled(true);
 
-        mBundle = getIntent().getExtras();
+        bundle = getIntent().getExtras();
 
         WebView myWebView = (WebView) this.findViewById(R.id.webView);
 
@@ -29,7 +30,7 @@ public class WebViewActivity extends ActionBarActivity {
         WebSettings webSettings = myWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
 
-        url = mBundle.getString("url");
+        url = bundle.getString("url");
         myWebView.loadUrl(url);
 
     }

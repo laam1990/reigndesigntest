@@ -1,37 +1,35 @@
-package com.reigndesign.model;
+package com.reigndesign.retrofit.model;
 
-import io.realm.Realm;
-import io.realm.RealmObject;
-
-import io.realm.annotations.PrimaryKey;
+import com.google.gson.annotations.SerializedName;
 
 /**
  * Created by Luis Adrian on 24/04/2017.
  */
 
-public class modelHits extends RealmObject {
+public class HitsService {
 
+    @SerializedName("title")
     private String title;
 
-    @PrimaryKey
+    @SerializedName("story_title")
+    private String storyTitle;
+
+    @SerializedName("objectID")
     private int objectID;
 
+    @SerializedName("created_at")
     private String createdAt;
 
+    @SerializedName("author")
     private String author;
 
+    @SerializedName("story_url")
+    private String storyUrl;
+
+    @SerializedName("url")
     private String url;
 
-    public modelHits() {
-    }
-
-    public modelHits(String title, int objectID, String createdAt, String author, String url) {
-        this.title = title;
-        this.objectID = objectID;
-        this.createdAt = createdAt;
-        this.author = author;
-        this.url = url;
-    }
+    public HitsService() {}
 
     public String getTitle() {
         return title;
@@ -39,6 +37,14 @@ public class modelHits extends RealmObject {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getStoryTitle() {
+        return storyTitle;
+    }
+
+    public void setStoryTitle(String storyTitle) {
+        this.storyTitle = storyTitle;
     }
 
     public int getObjectID() {
@@ -65,6 +71,14 @@ public class modelHits extends RealmObject {
         this.author = author;
     }
 
+    public String getStoryUrl() {
+        return storyUrl;
+    }
+
+    public void setStoryUrl(String storyUrl) {
+        this.storyUrl = storyUrl;
+    }
+
     public String getUrl() {
         return url;
     }
@@ -72,5 +86,4 @@ public class modelHits extends RealmObject {
     public void setUrl(String url) {
         this.url = url;
     }
-
 }

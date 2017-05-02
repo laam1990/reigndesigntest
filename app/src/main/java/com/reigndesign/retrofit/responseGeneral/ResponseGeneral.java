@@ -10,7 +10,7 @@ import java.util.List;
  * Created by Luis Adrian on 24/04/2017.
  */
 
-public class responseGeneral {
+public class ResponseGeneral {
     @SerializedName("nbHits")
     @Expose
     int nbHits;
@@ -47,7 +47,7 @@ public class responseGeneral {
         this.hits = hits;
     }
 
-    public responseGeneral() {
+    public ResponseGeneral() {
         this.hits = hits;
         this.nbHits = nbHits;
         this.query = query;
